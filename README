@@ -4,6 +4,8 @@ This app is used by Heroku's kensa gem as the skeleton colujure app.
 
 It must pass all the kensa tests.
 
+## Current status: pending SSO implementation
+
 Copyright (C) 2011 Chris Continanza
 
 Distributed under no license.
