@@ -27,9 +27,11 @@
         actual-token (get params "token")]
     (prn expected-token)
     (prn actual-token)
-  (if (= expected-token actual-token)
-    "You're in!"
-    {:status 403 :headers {} :body ""})))
+  (if (or (not= expected-token actual-token)
+          (< (Integer/parseInt (get params "timestamp"))
+             (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60))))
+    {:status 403 :headers {} :body "Access denied!"}
+    "You're in!")))
 
 (defn provision []
   (generate-string {"id" 1 "config" {"MYADDON_URL" "http://google.com"}}))
