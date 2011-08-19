@@ -35,8 +35,8 @@
     (prn expected-token)
     (prn actual-token)
   (if (= expected-token actual-token)
-      "You're in!"
-      {:status 403 :headers {} :body ""})))
+    "You're in!"
+    {:status 403 :headers {} :body ""})))
 
 (defn provision []
   (generate-string {"id" 1 "config" {"MYADDON_URL" "http://google.com"}}))
