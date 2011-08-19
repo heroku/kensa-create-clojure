@@ -5,6 +5,14 @@
         [clj-json.core])
   (:require [compojure.route :as route]))
 
+(defn wrap-debug [handler]
+  (fn [req]
+    (prn req)
+    (let [resp (handler req)]
+      (prn resp)
+      resp)))
+
+
 (defn get-hash [type data]
 (.digest (java.security.MessageDigest/getInstance type) (.getBytes data) ))
 
@@ -13,34 +21,41 @@
 
 (defn get-hash-str [data-bytes]
   (apply str
-(map
-#(.substring
-(Integer/toString
-(+ (bit-and % 0xff) 0x100) 16) 1)
-data-bytes)
-))
+    (map
+    #(.substring
+    (Integer/toString
+    (+ (bit-and % 0xff) 0x100) 16) 1)
+    data-bytes)
+    ))
 
 (defn sso [id params] 
-  (if (.equals (get-hash-str (sha1-hash (str id ":" (System/getenv "SSO_SALT") ":" (get params "timestamp"))))
-               (get params "token"))
+  (let [expected-token (get-hash-str (sha1-hash (str id ":" (System/getenv "SSO_SALT") ":" (get params "timestamp")))) 
+        actual-token (get params "token")]
+    (prn expected-token)
+    (prn actual-token)
+  (if (= expected-token actual-token)
       "You're in!"
-      {:status 403 :headers {} :body ""}))
+      {:status 403 :headers {} :body ""})))
 
+(defn provision [] (generate-string {:id 1 :config {:MYADDON_URL "http://google.com"}}))
 
 (defroutes heroku-routes
-  (GET "/" [] "Hello, world")
-  (GET    "/heroku/resources/:id" [id & params] (sso id params))
   (DELETE "/heroku/resources/:id" [id] "ok")
   (PUT    "/heroku/resources/:id" [id] "ok")
-  (POST   "/heroku/resources" [] 
-    (generate-string {:id 1 :config {:MYADDON_URL "http://google.com"}})))
+  (POST   "/heroku/resources" [] provision))
+
+(defroutes user-routes
+  (GET    "/" [] "Hello, world")
+  (GET    "/heroku/resources/:id" [id & params] (sso id params)))
 
 (defn authenticate [username password]
   (and (= username (System/getenv "HEROKU_USERNAME"))
        (= password (System/getenv "HEROKU_PASSWORD"))))
 
 (defroutes main-routes
-  (wrap-basic-auth heroku-routes authenticate))
+  user-routes
+  (wrap-debug (wrap-basic-auth heroku-routes authenticate))
+ )
 
 (defn -main []
   (let [port (Integer/parseInt (System/getenv "PORT"))]

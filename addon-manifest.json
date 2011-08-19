@@ -4,7 +4,7 @@
     "config_vars": [ "MYADDON_URL" ],
     "password": "Yg7eOk9lUMIFAN8c",
     "sso_salt": "Tx5RDXpZg8z4B3q5",
-    "production": "https://yourapp.com/",
+    "production": "https://localhost:1234/",
     "test": "http://localhost:1234/"
   }
 }
