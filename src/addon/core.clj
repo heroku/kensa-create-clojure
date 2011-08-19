@@ -44,7 +44,7 @@
 (defroutes heroku-routes
   (DELETE "/heroku/resources/:id" [id] "ok")
   (PUT    "/heroku/resources/:id" [id] "ok")
-  (POST   "/heroku/resources" [] provision))
+  (POST   "/heroku/resources" [] (provision)))
 
 (defroutes user-routes
   (GET    "/" [] "Hello, world")
