@@ -18,10 +18,8 @@
 (defn get-hash-str [data-bytes]
   (apply str
     (map
-    #(.substring
-    (Integer/toString
-    (+ (bit-and % 0xff) 0x100) 16) 1)
-    data-bytes)))
+      #(.substring (Integer/toString (+ (bit-and % 0xff) 0x100) 16) 1)
+      data-bytes)))
 
 (defn sso [id {:strs [timestamp token]}]
   (let [expected-token (get-hash-str (sha1-hash (str id ":" (env "SSO_SALT") ":" timestamp)))]
