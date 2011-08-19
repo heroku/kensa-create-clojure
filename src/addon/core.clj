@@ -22,13 +22,12 @@
     (+ (bit-and % 0xff) 0x100) 16) 1)
     data-bytes)))
 
-(defn sso [id params]
-  (let [expected-token (get-hash-str (sha1-hash (str id ":" (env "SSO_SALT") ":" (get params "timestamp"))))
-        actual-token (get params "token")]
+(defn sso [id {:strs [timestamp token]}]
+  (let [expected-token (get-hash-str (sha1-hash (str id ":" (env "SSO_SALT") ":" timestamp)))]
     (prn expected-token)
-    (prn actual-token)
-  (if (or (not= expected-token actual-token)
-          (< (Integer/parseInt (get params "timestamp"))
+    (prn token)
+  (if (or (not= expected-token token)
+          (< (Integer/parseInt timestamp)
              (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60))))
     {:status 403 :headers {} :body "Access denied!"}
     "You're in!")))
