@@ -1,5 +1,4 @@
-(defproject addon "1.0.0-SNAPSHOT"
-  :description "FIXME: write description"
+(defproject addon "0.0.1"
   :dependencies [
     [org.clojure/clojure "1.2.1"]
     [clj-json "0.3.1"]
