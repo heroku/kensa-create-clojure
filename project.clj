@@ -4,4 +4,4 @@
     [clj-json "0.3.1"]
     [compojure "0.6.5"]
     [ring-basic-auth "0.1.0"]
-    [ring/ring-jetty-adapter "0.3.10"]])
+    [ring/ring-jetty-adapter "0.3.11"]])
