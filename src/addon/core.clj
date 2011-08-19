@@ -2,6 +2,7 @@
   (:use [compojure.core]
         [ring.adapter.jetty]
         [ring.middleware.basic-auth]
+        [ring.util.response]
         [clj-json.core])
   (:require [compojure.route :as route]
             [compojure.handler :as handler]))
@@ -19,13 +20,11 @@
 
 (defn sso [id {:keys [timestamp token]}]
   (let [expected-token (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))]
-    (prn expected-token)
-    (prn token)
-  (if (or (not= expected-token token)
-          (< (Integer/parseInt timestamp)
-             (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60))))
-    {:status 403 :headers {} :body "Access denied!"}
-    "You're in!")))
+    (if (or (not= expected-token token)
+            (< (Integer/parseInt timestamp)
+               (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60))))
+      (-> (response "Access denied!") (status 403))
+      (-> (response "You're in!") (status 200)))))
 
 (defn provision []
   (generate-string {"id" 1 "config" {"MYADDON_URL" "http://google.com"}}))
