@@ -12,9 +12,8 @@
       (prn resp)
       resp)))
 
-
 (defn get-hash [type data]
-(.digest (java.security.MessageDigest/getInstance type) (.getBytes data) ))
+  (.digest (java.security.MessageDigest/getInstance type) (.getBytes data)))
 
 (defn sha1-hash [data]
  (get-hash "sha1" data))
@@ -25,11 +24,10 @@
     #(.substring
     (Integer/toString
     (+ (bit-and % 0xff) 0x100) 16) 1)
-    data-bytes)
-    ))
+    data-bytes)))
 
-(defn sso [id params] 
-  (let [expected-token (get-hash-str (sha1-hash (str id ":" (System/getenv "SSO_SALT") ":" (get params "timestamp")))) 
+(defn sso [id params]
+  (let [expected-token (get-hash-str (sha1-hash (str id ":" (System/getenv "SSO_SALT") ":" (get params "timestamp"))))
         actual-token (get params "token")]
     (prn expected-token)
     (prn actual-token)
@@ -37,7 +35,8 @@
       "You're in!"
       {:status 403 :headers {} :body ""})))
 
-(defn provision [] (generate-string {:id 1 :config {:MYADDON_URL "http://google.com"}}))
+(defn provision []
+  (generate-string {:id 1 :config {:MYADDON_URL "http://google.com"}}))
 
 (defroutes heroku-routes
   (DELETE "/heroku/resources/:id" [id] "ok")
@@ -54,8 +53,7 @@
 
 (defroutes main-routes
   user-routes
-  (wrap-debug (wrap-basic-auth heroku-routes authenticate))
- )
+  (wrap-debug (wrap-basic-auth heroku-routes authenticate)))
 
 (defn -main []
   (let [port (Integer/parseInt (System/getenv "PORT"))]
