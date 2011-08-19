@@ -1,6 +1,6 @@
 # kensa generate <app> --lang clojure
 
-This app is used by Heroku's kensa gem as the skeleton colujure app.
+This app is used by Heroku's kensa gem as the skeleton Clojure app.
 
 It must pass all the kensa tests.
 
