@@ -6,6 +6,13 @@ It must pass all the kensa tests.
 
 ## Current status: pending SSO implementation
 
+Usage:
+
+    $ lein deps
+    $ cp .env.sample .env
+    $ foreman start
+    $ kensa test
+
 Copyright (C) 2011 Chris Continanza
 
 Distributed under no license.
