@@ -5,13 +5,6 @@
         [clj-json.core])
   (:require [compojure.route :as route]))
 
-(defn wrap-debug [handler]
-  (fn [req]
-    (prn req)
-    (let [resp (handler req)]
-      (prn resp)
-      resp)))
-
 (defn env [k]
   (System/getenv k))
 
