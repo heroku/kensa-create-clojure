@@ -3,7 +3,8 @@
         [ring.adapter.jetty]
         [ring.middleware.basic-auth]
         [clj-json.core])
-  (:require [compojure.route :as route]))
+  (:require [compojure.route :as route]
+            [compojure.handler :as handler]))
 
 (defn env [k]
   (System/getenv k))
@@ -48,10 +49,12 @@
   (and (= username (env "HEROKU_USERNAME"))
        (= password (env "HEROKU_PASSWORD"))))
 
-(defroutes main-routes
-  user-routes
-  (wrap-basic-auth heroku-routes authenticate))
+(def app
+  (handler/site
+    (routes
+      user-routes
+      (wrap-basic-auth heroku-routes authenticate))))
 
 (defn -main []
   (let [port (Integer/parseInt (env "PORT"))]
-    (run-jetty main-routes {:port port})))
+    (run-jetty app {:port port})))
