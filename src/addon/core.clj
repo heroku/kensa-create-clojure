@@ -36,7 +36,7 @@
       {:status 403 :headers {} :body ""})))
 
 (defn provision []
-  (generate-string {:id 1 :config {:MYADDON_URL "http://google.com"}}))
+  (generate-string {"id" 1 "config" {"MYADDON_URL" "http://google.com"}}))
 
 (defroutes heroku-routes
   (DELETE "/heroku/resources/:id" [id] "ok")
