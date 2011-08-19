@@ -11,7 +11,7 @@ Usage:
     $ lein deps
     $ cp .env.sample .env
     $ foreman start
-    $ kensa test
+    $ kensa test provision
 
 Copyright (C) 2011 Chris Continanza
 
