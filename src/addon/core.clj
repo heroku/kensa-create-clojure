@@ -12,6 +12,9 @@
       (prn resp)
       resp)))
 
+(defn env [k]
+  (System/getenv k))
+
 (defn get-hash [type data]
   (.digest (java.security.MessageDigest/getInstance type) (.getBytes data)))
 
@@ -27,7 +30,7 @@
     data-bytes)))
 
 (defn sso [id params]
-  (let [expected-token (get-hash-str (sha1-hash (str id ":" (System/getenv "SSO_SALT") ":" (get params "timestamp"))))
+  (let [expected-token (get-hash-str (sha1-hash (str id ":" (env "SSO_SALT") ":" (get params "timestamp"))))
         actual-token (get params "token")]
     (prn expected-token)
     (prn actual-token)
@@ -48,13 +51,13 @@
   (GET    "/heroku/resources/:id" [id & params] (sso id params)))
 
 (defn authenticate [username password]
-  (and (= username (System/getenv "HEROKU_USERNAME"))
-       (= password (System/getenv "HEROKU_PASSWORD"))))
+  (and (= username (env "HEROKU_USERNAME"))
+       (= password (env "HEROKU_PASSWORD"))))
 
 (defroutes main-routes
   user-routes
   (wrap-debug (wrap-basic-auth heroku-routes authenticate)))
 
 (defn -main []
-  (let [port (Integer/parseInt (System/getenv "PORT"))]
+  (let [port (Integer/parseInt (env "PORT"))]
     (run-jetty main-routes {:port port})))
