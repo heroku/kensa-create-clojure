@@ -17,7 +17,7 @@
         #(.substring (Integer/toString (+ (bit-and % 0xff) 0x100) 16) 1)
         digest-bytes))))
 
-(defn sso [id {:strs [timestamp token]}]
+(defn sso [id {:keys [timestamp token]}]
   (let [expected-token (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))]
     (prn expected-token)
     (prn token)
