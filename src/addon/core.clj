@@ -56,7 +56,7 @@
 
 (defroutes main-routes
   user-routes
-  (wrap-debug (wrap-basic-auth heroku-routes authenticate)))
+  (wrap-basic-auth heroku-routes authenticate))
 
 (defn -main []
   (let [port (Integer/parseInt (env "PORT"))]
