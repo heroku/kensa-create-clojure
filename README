@@ -1,13 +1,9 @@
-# addon
+# kensa generate <app> --lang clojure
 
-FIXME: write description
+This app is used by Heroku's kensa gem as the skeleton colujure app.
 
-## Usage
+It must pass all the kensa tests.
 
-FIXME: write
+Copyright (C) 2011 Chris Continanza
 
-## License
-
-Copyright (C) 2011 FIXME
-
-Distributed under the Eclipse Public License, the same as Clojure.
+Distributed under no license.
