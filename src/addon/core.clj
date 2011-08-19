@@ -9,20 +9,16 @@
 (defn env [k]
   (System/getenv k))
 
-(defn get-hash [type data]
-  (.digest (java.security.MessageDigest/getInstance type) (.getBytes data)))
-
-(defn sha1-hash [data]
- (get-hash "sha1" data))
-
-(defn get-hash-str [data-bytes]
-  (apply str
-    (map
-      #(.substring (Integer/toString (+ (bit-and % 0xff) 0x100) 16) 1)
-      data-bytes)))
+(defn sha1 [plaintext-str]
+  (let [plaintext-bytes (.getBytes plaintext-str)
+        digest-bytes (.digest (java.security.MessageDigest/getInstance "sha1") plaintext-bytes)]
+    (apply str
+      (map
+        #(.substring (Integer/toString (+ (bit-and % 0xff) 0x100) 16) 1)
+        digest-bytes))))
 
 (defn sso [id {:strs [timestamp token]}]
-  (let [expected-token (get-hash-str (sha1-hash (str id ":" (env "SSO_SALT") ":" timestamp)))]
+  (let [expected-token (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))]
     (prn expected-token)
     (prn token)
   (if (or (not= expected-token token)
