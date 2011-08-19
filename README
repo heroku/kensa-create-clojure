@@ -1,10 +1,17 @@
 # kensa generate <app> --lang clojure
 
-This app is used by Heroku's kensa gem as the skeleton colujure app.
+This app is used by Heroku's kensa gem as the skeleton Clojure app.
 
 It must pass all the kensa tests.
 
 ## Current status: pending SSO implementation
+
+Usage:
+
+    $ lein deps
+    $ cp .env.sample .env
+    $ foreman start
+    $ kensa test provision
 
 Copyright (C) 2011 Chris Continanza
 
