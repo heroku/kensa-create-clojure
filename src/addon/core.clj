@@ -2,6 +2,7 @@
   (:use [compojure.core]
         [ring.adapter.jetty]
         [ring.middleware.basic-auth]
+        [ring.middleware.cookies]
         [ring.util.response]
         [clj-json.core])
   (:require [compojure.route :as route]
@@ -18,13 +19,15 @@
         #(.substring (Integer/toString (+ (bit-and % 0xff) 0x100) 16) 1)
         digest-bytes))))
 
-(defn sso [id {:keys [timestamp token]}]
-  (let [expected-token (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))]
-    (if (or (not= expected-token token)
-            (< (Integer/parseInt timestamp)
-               (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60))))
-      (-> (response "Access denied!") (status 403))
-      (-> (response "You're in!") (status 200)))))
+(defn sso [id {:keys [timestamp token nav-data]}]
+  (let [expected-token (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))
+        ts  (> (Integer/parseInt timestamp)
+               (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60)))]
+    (if (and (= expected-token token) ts)
+      (-> (response "<html><body>You're in!</body></html>") 
+          (status 200) (content-type "text/html") 
+          (assoc :cookies {:heroku-nav-data nav-data}))
+      (-> (response "Access denied!") (status 403)))))
 
 (defn provision []
   (generate-string {"id" 1 "config" {"MYADDON_URL" "http://google.com"}}))
@@ -45,7 +48,7 @@
 (def app
   (handler/site
     (routes
-      user-routes
+      (wrap-cookies user-routes)
       (wrap-basic-auth heroku-routes authenticate))))
 
 (defn -main []
