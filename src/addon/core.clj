@@ -6,6 +6,7 @@
         [ring.util.response]
         [clj-json.core])
   (:require [compojure.route :as route]
+            [clojure.contrib.http.agent :as http]
             [compojure.handler :as handler]))
 
 (defn env [k]
@@ -20,11 +21,12 @@
         digest-bytes))))
 
 (defn sso [id {:keys [timestamp token nav-data]}]
-  (let [expected-token (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))
-        ts  (> (Integer/parseInt timestamp)
-               (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60)))]
-    (if (and (= expected-token token) ts)
-      (-> (response "<html><body>You're in!</body></html>") 
+  (let [expected-token   (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))
+        timestamp_check  (> (Integer/parseInt timestamp)
+                           (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60)))
+        header           (http/string (http/http-agent "http://nav.heroku.com/v1/providers/header"))]
+    (if (and (= expected-token token) timestamp_check)
+      (-> (response (str "<html><body>" header "<p>Hello, world!</p></body></html>"))
           (status 200) (content-type "text/html") 
           (assoc :cookies {:heroku-nav-data nav-data}))
       (-> (response "Access denied!") (status 403)))))
