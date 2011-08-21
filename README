@@ -4,7 +4,7 @@ This app is used by Heroku's kensa gem as the skeleton Clojure app.
 
 It must pass all the kensa tests.
 
-## Current status: pending SSO implementation
+## Current status: working!
 
 Usage:
 
