@@ -32,7 +32,8 @@
       (-> (response "Access denied!") (status 403)))))
 
 (defn provision []
-  (generate-string {"id" 1 "config" {"MYADDON_URL" "http://google.com"}}))
+  (-> (response (generate-string {"id" 1 "config" {"MYADDON_URL" "http://myaddon.com"}}))
+                (status 201)))
 
 (defroutes heroku-routes
   (DELETE "/heroku/resources/:id" [id] "ok")
