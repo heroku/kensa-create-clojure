@@ -21,15 +21,17 @@
         digest-bytes))))
 
 (defn sso [id {:keys [timestamp token nav-data]}]
-  (let [expected-token   (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))
-        timestamp_check  (> (Integer/parseInt timestamp)
-                           (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60)))
-        header           (http/string (http/http-agent "http://nav.heroku.com/v1/providers/header"))]
-    (if (and (= expected-token token) timestamp_check)
-      (-> (response (str "<html><body>" header "<p>Hello, world!</p></body></html>"))
-          (status 200) (content-type "text/html") 
-          (assoc :cookies {:heroku-nav-data nav-data}))
-      (-> (response "Access denied!") (status 403)))))
+  (try 
+    (let [expected-token   (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))
+          timestamp_check  (> (Integer/parseInt timestamp)
+                             (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60)))
+          header           (http/string (http/http-agent "http://nav.heroku.com/v1/providers/header"))]
+      (if (and (= expected-token token) timestamp_check)
+        (-> (response (str "<html><body>" header "<p>Hello, world!</p></body></html>"))
+            (status 200) (content-type "text/html") 
+            (assoc :cookies {:heroku-nav-data nav-data}))
+        (-> (response "Access denied!") (status 403))))
+  (catch NumberFormatException e (-> (response "Access denied!") (status 403)))))
 
 (defn provision []
   (-> (response (generate-string {"id" 1 "config" {"MYADDON_URL" "http://myaddon.com"}}))
