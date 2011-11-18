@@ -1,17 +1,34 @@
-# kensa generate <app> --lang clojure
+## `kensa create my_addon --template clojure`
 
 This app will be used by Heroku's kensa gem as the skeleton Clojure app.
 
 It must pass all the kensa tests.
 
-## Current status: working!
+## Current status: 
+- deprovision - working
+- provision   - working
+- planchange  - working
+- GET SSO - working
+- POST SSO - not implemented
 
+this repository is a sinatra template application for use with the 
+Heroku <a href="http://github.com/heroku/kensa">kensa</a> gem
+
+clone it via:
+
+    > gem install kensa
+    > kensa create my_addon --template clojure
+    > cd my_addon
+    > bundle install
+    > foreman start
+
+In a new window: 
+
+    > kensa test provision
+    > kensa sso 1
+
+And you should be in a Heroku Single Sign On sesion for your brand new addon! 
 Usage:
-
-    $ lein deps
-    $ cp .env.sample .env
-    $ foreman start
-    $ kensa test provision
 
 Copyright (C) 2011 Chris Continanza
 
