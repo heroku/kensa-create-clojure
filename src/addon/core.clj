@@ -50,11 +50,19 @@
   (and (= username (env "HEROKU_USERNAME"))
        (= password (env "HEROKU_PASSWORD"))))
 
+(defn wrap-logging [f] 
+  (fn [{:keys [query-params headers body] :as req} & args] 
+    (println "PARAMS"  (pr-str query-params))
+    (println "HEADERS" (pr-str headers))
+    (println "BODY"    (slurp body ))
+    (apply f req args)))
+
 (def app
   (handler/site
-    (routes
-      (wrap-cookies user-routes)
-      (wrap-basic-auth heroku-routes authenticate))))
+    (wrap-logging 
+      (routes
+        (wrap-cookies user-routes)
+        (wrap-basic-auth heroku-routes authenticate)))))
 
 (defn -main []
   (let [port (Integer/parseInt (env "PORT"))]
