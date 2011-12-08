@@ -9,6 +9,8 @@
             [clojure.contrib.http.agent :as http]
             [compojure.handler :as handler]))
 
+(def resources (ref {}))
+
 (defn env [k]
   (System/getenv k))
 
@@ -34,8 +36,13 @@
   (catch NumberFormatException e (-> (response "Access denied!") (status 403)))))
 
 (defn provision []
-  (-> (response (generate-string {"id" 1 "config" {"MYADDON_URL" "http://myaddon.com"}}))
-                (status 201)))
+  (let [id (str (java.util.UUID/randomUUID))]
+    (dosync 
+      (alter resources assoc id "test"))
+    (-> (response (generate-string 
+                    {"id" id "config" {"MYADDON_URL" (str "http://myaddon.com/" id)}}))
+                  (status 201))))
+
 
 (defroutes heroku-routes
   (DELETE "/heroku/resources/:id" [id] "ok")
