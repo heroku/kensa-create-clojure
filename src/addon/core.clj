@@ -43,9 +43,15 @@
                     {"id" id "config" {"MYADDON_URL" (str "http://myaddon.com/" id)}}))
                   (status 201))))
 
+(defn deprovision [id]
+  (dosync 
+    (if (@resources id) 
+      (alter resources dissoc id)
+      (-> (response "Not found") 
+          (status 404)))))
 
 (defroutes heroku-routes
-  (DELETE "/heroku/resources/:id" [id] "ok")
+  (DELETE "/heroku/resources/:id" [id] (deprovision id))
   (PUT    "/heroku/resources/:id" [id] "ok")
   (POST   "/heroku/resources" [] (provision)))
 
