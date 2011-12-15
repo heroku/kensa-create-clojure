@@ -14,6 +14,17 @@
 (defn env [k]
   (System/getenv k))
 
+(defn authenticate [username password]
+  (and (= username (env "HEROKU_USERNAME"))
+       (= password (env "HEROKU_PASSWORD"))))
+
+(defn wrap-logging [f] 
+  (fn [{:keys [query-params headers body] :as req} & args] 
+    (println "PARAMS"  (pr-str query-params))
+    (println "HEADERS" (pr-str headers))
+    (println "BODY"    (slurp body ))
+    (apply f req args)))
+
 (defn sha1 [plaintext-str]
   (let [plaintext-bytes (.getBytes plaintext-str)
         digest-bytes (.digest (java.security.MessageDigest/getInstance "sha1") plaintext-bytes)]
@@ -25,10 +36,10 @@
 (defn sso [id {:keys [timestamp token nav-data]}]
   (try 
     (let [expected-token   (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))
-          timestamp_check  (> (Integer/parseInt timestamp)
+          timestamp-check  (> (Integer/parseInt timestamp)
                              (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60)))
           header           (http/string (http/http-agent "http://nav.heroku.com/v1/providers/header"))]
-      (if (and (= expected-token token) timestamp_check)
+      (if (and (= expected-token token) timestamp-check)
         (-> (response (str "<html><body>" header "<p>Hello, world!</p></body></html>"))
             (status 200) (content-type "text/html") 
             (assoc :cookies {:heroku-nav-data nav-data}))
@@ -58,17 +69,6 @@
 (defroutes user-routes
   (GET    "/" [] "Hello, world")
   (GET    "/heroku/resources/:id" [id & params] (sso id params)))
-
-(defn authenticate [username password]
-  (and (= username (env "HEROKU_USERNAME"))
-       (= password (env "HEROKU_PASSWORD"))))
-
-(defn wrap-logging [f] 
-  (fn [{:keys [query-params headers body] :as req} & args] 
-    (println "PARAMS"  (pr-str query-params))
-    (println "HEADERS" (pr-str headers))
-    (println "BODY"    (slurp body ))
-    (apply f req args)))
 
 (def app
   (handler/site
