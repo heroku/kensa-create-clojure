@@ -61,9 +61,17 @@
       (-> (response "Not found") 
           (status 404)))))
 
+(defn plan-change [id body]
+  (dosync 
+    (if (@resources id) 
+      (alter resources assoc id (:plan body))
+      (-> (response "Not found") 
+          (status 404)))))
+
 (defroutes heroku-routes
   (DELETE "/heroku/resources/:id" [id] (deprovision id))
-  (PUT    "/heroku/resources/:id" [id] "ok")
+  (PUT    "/heroku/resources/:id" {body :body {id :id} :params} 
+    (plan-change id (json/parse-string (slurp body))))
   (POST   "/heroku/resources" [] (provision)))
 
 (defroutes user-routes
