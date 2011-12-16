@@ -3,6 +3,7 @@
         [ring.adapter.jetty]
         [ring.middleware.basic-auth]
         [ring.middleware.cookies]
+        [hiccup.core]
         [ring.util.response])
   (:require [compojure.route :as route]
             [clj-json.core :as json]
@@ -33,14 +34,24 @@
         #(.substring (Integer/toString (+ (bit-and % 0xff) 0x100) 16) 1)
         digest-bytes))))
 
-(defn sso [id {:keys [timestamp token nav-data]}]
+(defn sso-page [header id email] 
+  (html  
+    [:body 
+      header 
+      [:div 
+        "Hello!"
+        [:div "You are using resource: " id] 
+        [:div "You are on plan: " (@resources id)]
+        [:div "You logged in using: " email]]]))
+
+(defn sso [id {:keys [timestamp token nav-data email]}]
   (try 
     (let [expected-token   (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))
           timestamp-check  (> (Integer/parseInt timestamp)
                              (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60)))
           header           (http/string (http/http-agent "http://nav.heroku.com/v1/providers/header"))]
       (if (and (= expected-token token) timestamp-check)
-        (-> (response (str "<html><body>" header "<p>Hello, world!</p></body></html>"))
+        (-> (response (sso-page header id email))
             (status 200) (content-type "text/html") 
             (assoc :cookies {:heroku-nav-data nav-data}))
         (-> (response "Access denied!") (status 403))))
