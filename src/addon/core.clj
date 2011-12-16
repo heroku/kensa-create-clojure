@@ -76,6 +76,7 @@
 
 (defroutes user-routes
   (GET    "/" [] "Hello, world")
+  (POST   "/sso/login" {params :params} (sso (:id params) params)) 
   (GET    "/heroku/resources/:id" [id & params] (sso id params)))
 
 (def app
