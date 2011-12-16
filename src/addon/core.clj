@@ -3,9 +3,9 @@
         [ring.adapter.jetty]
         [ring.middleware.basic-auth]
         [ring.middleware.cookies]
-        [ring.util.response]
-        [clj-json.core])
+        [ring.util.response])
   (:require [compojure.route :as route]
+            [clj-json.core :as json]
             [clojure.contrib.http.agent :as http]
             [compojure.handler :as handler]))
 
@@ -50,7 +50,7 @@
   (let [id (str (java.util.UUID/randomUUID))]
     (dosync 
       (alter resources assoc id "test"))
-    (-> (response (generate-string 
+    (-> (response (json/generate-string 
                     {"id" id "config" {"MYADDON_URL" (str "http://myaddon.com/" id)}}))
                   (status 201))))
 
