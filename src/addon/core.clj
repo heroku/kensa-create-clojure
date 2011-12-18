@@ -39,8 +39,6 @@
         digest-bytes))))
 
 (defn sso-page [header id email] 
-  (prn @resources)
-  (prn id)
   (html  
     [:body 
       header 
@@ -51,17 +49,20 @@
         [:div "You logged in using: " email]]]))
 
 (defn sso [id {:keys [timestamp token nav-data email]}]
-  (try 
-    (let [expected-token   (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))
-          timestamp-check  (> (Integer/parseInt timestamp)
-                             (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60)))
-          header           (get (http/get "http://nav.heroku.com/v1/providers/header") :body)]
-      (if (and (= expected-token token) timestamp-check)
-        (-> (response (sso-page header id email))
-            (status 200) (content-type "text/html") 
-            (assoc :cookies {:heroku-nav-data nav-data}))
-        (-> (response "Access denied!") (status 403))))
-  (catch NumberFormatException e (-> (response "Access denied!") (status 403)))))
+  (if (@resources id) 
+    (try 
+      (let [expected-token   (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))
+            timestamp-check  (> (Integer/parseInt timestamp)
+                               (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60)))
+            header           (get (http/get "http://nav.heroku.com/v1/providers/header") :body)]
+        (if (and (= expected-token token) timestamp-check)
+          (-> (response (sso-page header id email))
+              (status 200) (content-type "text/html") 
+              (assoc :cookies {:heroku-nav-data nav-data}))
+          (-> (response "Access denied!") (status 403))))
+    (catch NumberFormatException e (-> (response "Access denied!") (status 403))))
+    (-> (response "Not found") 
+        (status 404))))
 
 (defn provision []
   (let [id (str (java.util.UUID/randomUUID))]
