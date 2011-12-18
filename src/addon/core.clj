@@ -7,7 +7,7 @@
         [ring.util.response])
   (:require [compojure.route :as route]
             [clj-json.core :as json]
-            [clojure.contrib.http.agent :as http]
+            [clj-http.client :as http]
             [compojure.handler :as handler]))
 
 (def resources (ref {}))
@@ -49,7 +49,7 @@
     (let [expected-token   (sha1 (str id ":" (env "SSO_SALT") ":" timestamp))
           timestamp-check  (> (Integer/parseInt timestamp)
                              (- (int (/ (System/currentTimeMillis) 1000)) (* 5 60)))
-          header           (http/string (http/http-agent "http://nav.heroku.com/v1/providers/header"))]
+          header           (get (http/get "http://nav.heroku.com/v1/providers/header") :body)]
       (if (and (= expected-token token) timestamp-check)
         (-> (response (sso-page header id email))
             (status 200) (content-type "text/html") 
