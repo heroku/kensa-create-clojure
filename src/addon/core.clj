@@ -5,6 +5,7 @@
         [ring.middleware.cookies]
         [hiccup.core]
         [ring.util.response])
+  (:import [java.io ByteArrayInputStream])
   (:require [compojure.route :as route]
             [clj-json.core :as json]
             [clj-http.client :as http]
@@ -21,10 +22,13 @@
 
 (defn wrap-logging [f] 
   (fn [{:keys [query-params headers body] :as req} & args] 
+    (let [bstr (slurp body)
+         req* (assoc req
+                :body (ByteArrayInputStream. (.getBytes bstr)))]
     (println "PARAMS"  (pr-str query-params))
     (println "HEADERS" (pr-str headers))
-    (println "BODY"    (slurp body ))
-    (apply f req args)))
+    (println "BODY"    bstr)
+    (apply f req* args))) )
 
 (defn sha1 [plaintext-str]
   (let [plaintext-bytes (.getBytes plaintext-str)
@@ -35,6 +39,8 @@
         digest-bytes))))
 
 (defn sso-page [header id email] 
+  (prn @resources)
+  (prn id)
   (html  
     [:body 
       header 
@@ -75,7 +81,7 @@
 (defn plan-change [id body]
   (dosync 
     (if (@resources id) 
-      (alter resources assoc id (:plan body))
+      (alter resources assoc id (get body "plan"))
       (-> (response "Not found") 
           (status 404)))))
 
