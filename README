@@ -5,12 +5,16 @@ This app will be used by Heroku's kensa gem as the skeleton Clojure app.
 this repository is a clojure/compojure template add-on for use with the 
 Heroku <a href="http://github.com/heroku/kensa">kensa</a> gem
 
-clone it via:
+dependencies:
 
     > gem install kensa
+    > gem install foreman
+
+clone it via:
+
     > kensa create my_addon --template clojure
     > cd my_addon
-    > bundle install
+    > lein deps
     > foreman start
 
 In a new window: 
