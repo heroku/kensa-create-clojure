@@ -26,7 +26,7 @@ And you should be in a Heroku Single Sign On sesion for your brand new addon!
 - provision   - working
 - planchange  - working
 - GET SSO     - working
-- POST SSO    - not yet implemented
+- POST SSO    - working
 
 Copyright (C) 2011 Chris Continanza
 
