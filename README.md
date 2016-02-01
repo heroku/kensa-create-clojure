@@ -1,3 +1,7 @@
+# [DEPRECATED]
+
+This tool is deprecated. Please follow [this guide](https://devcenter.heroku.com/articles/building-a-heroku-add-on) when building a Heroku add-on.
+
 ## `kensa create my_addon --template clojure`
 
 This app will be used by Heroku's kensa gem as the skeleton Clojure app.
